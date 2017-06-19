@@ -35,4 +35,4 @@ def guess_path():
 
 
 if __name__ == '__main__':
-	return guess_path()
+	guess_path()
