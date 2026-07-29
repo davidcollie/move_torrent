@@ -1,12 +1,12 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.11
 from guessit import guessit
 import sys
 
 def tv_path(info):
-	return 'tv/' + info['title'] + '/Season ' + str(info['season']).zfill(2) + '/'
+	return 'tv/' + info['title'].title() + '/Season ' + str(info['season']).zfill(2) + '/'
 
 def movie_path(info):
-	path = 'movies/' + info['title']
+	path = 'movies/' + info['title'].title()
 	if 'year' in info:
 		path += ' (' + str(info['year']) + ')'
 
@@ -17,6 +17,11 @@ def movie_path(info):
 def guess_path():
 	filename = sys.argv[1]
 	info = guessit(filename)
+
+	if 'mimetype' not in info:
+		print('No mimetype found')
+		print(filename)
+		return 2
 	
 	is_video = 'video' in info['mimetype']
 	media_path = 'media/'
