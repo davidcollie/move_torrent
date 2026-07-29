@@ -23,3 +23,13 @@ that runs `move_torrent.sh` on an interval. The scripts use hardcoded paths for 
 torrents / completed / library folders — edit them to match your setup.
 
 Requires `unrar` and Python 3 with the `guessit` module.
+
+## Maintenance
+
+- **`dedupe_media.py`** — one-off, idempotent cleanup for libraries built before the
+  pipeline switched to hardlinks. It walks the torrents folder, finds each file that was
+  *copied* into the library, and (after prompting per file) replaces the library copy with
+  a hardlink back to the torrent, reclaiming the duplicated space. Matches by
+  basename + size + content; run `dedupe_media.py --dry-run` first to preview. No `guessit`
+  dependency.
+
