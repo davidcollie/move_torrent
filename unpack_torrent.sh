@@ -36,9 +36,21 @@ process_file() {
             echo "$(date): Extracting RAR archive: $f" >> "$LOGFILE"
             unrar e -o+ "$f" "$complete_folder" >> "$LOGFILE" 2>&1
             ;;
-        avi|mp4|mkv)
-            echo "$(date): Copying video file: $f" >> "$LOGFILE"
-            cp -n "$f" "$complete_folder"
+        avi|mp4|mkv|m4v|mov|ts|wmv)
+            # No extraction needed: hardlink into the completed folder instead of
+            # copying, so the file doesn't occupy disk space twice while seeding.
+            # torrents/ and media/ share one volume, so the hardlink is free.
+            dest="$complete_folder/$filename"
+            if [ -e "$dest" ] || [ -L "$dest" ]; then
+                echo "$(date): Already staged, skipping: $dest" >> "$LOGFILE"
+            elif ln "$f" "$dest" 2>>"$LOGFILE"; then
+                echo "$(date): Hardlinked video file: $f -> $dest" >> "$LOGFILE"
+            else
+                # Safety net only (e.g. torrents/ and media/ on different volumes,
+                # where a hardlink can't cross). Falls back to the old copy behavior.
+                echo "$(date): Hardlink failed; copying instead: $f" >> "$LOGFILE"
+                cp -n "$f" "$complete_folder"
+            fi
             ;;
         *)
             echo "$(date): Skipping unsupported file: $f" >> "$LOGFILE"
